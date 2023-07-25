@@ -23,8 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface ProjectPermissionType {
-  createdAt: string
-  type: string
-  updatedAt: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+
+import {
+  ProjectPermissionTypeQuery,
+  ProjectPermissionTypeType
+} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const projectPermissionTypeResolver = resolve<ProjectPermissionTypeType, HookContext>({})
+
+export const projectPermissionTypeExternalResolver = resolve<ProjectPermissionTypeType, HookContext>({})
+
+export const projectPermissionTypeDataResolver = resolve<ProjectPermissionTypeType, HookContext>({})
+
+export const projectPermissionTypePatchResolver = resolve<ProjectPermissionTypeType, HookContext>({})
+
+export const projectPermissionTypeQueryResolver = resolve<ProjectPermissionTypeQuery, HookContext>({})

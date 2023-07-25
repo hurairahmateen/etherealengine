@@ -23,29 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { ProjectPermissionType } from './project-permission-type.class'
-import projectPermissionTypeDocs from './project-permission-type.docs'
-import hooks from './project-permission-type.hooks'
-import createModel from './project-permission-type.model'
+import type { Knex } from 'knex'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'project-permission-type': ProjectPermissionType
+import { projectPermissionTypePath } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'project_permission_type'
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, projectPermissionTypePath)
+  }
+
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
+
+  if (tableExists === false) {
+    await knex.schema.createTable(projectPermissionTypePath, (table) => {
+      //@ts-ignore
+      table.string('type', 255).notNullable().unique().collate('utf8mb4_bin').primary()
+    })
   }
 }
 
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(projectPermissionTypePath)
   }
-
-  const event = new ProjectPermissionType(options, app)
-  event.docs = projectPermissionTypeDocs
-  app.use('project-permission-type', event)
-
-  const service = app.service('project-permission-type')
-  service.hooks(hooks)
 }

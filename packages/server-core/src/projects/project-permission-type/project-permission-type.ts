@@ -23,36 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import {
+  projectPermissionTypeMethods,
+  projectPermissionTypePath
+} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 
 import { Application } from '../../../declarations'
+import { ProjectPermissionTypeService } from './project-permission-type.class'
+import projectPermissionTypeDocs from './project-permission-type.docs'
+import hooks from './project-permission-type.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ProjectPermissionType = sequelizeClient.define<Model<ScopeTypeData>>(
-    'project_permission_type',
-    {
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true,
-        unique: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      },
-      timestamps: false
-    }
-  )
-  ;(ProjectPermissionType as any).associate = (models: any): void => {
-    ;(ProjectPermissionType as any).hasMany(models.project_permission, { foreignKey: 'type' })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectPermissionTypePath]: ProjectPermissionTypeService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: projectPermissionTypePath,
+    id: 'type',
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  return ProjectPermissionType
+  app.use(projectPermissionTypePath, new ProjectPermissionTypeService(options), {
+    // A list of all methods this service exposes externally
+    methods: projectPermissionTypeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectPermissionTypeDocs
+  })
+
+  const service = app.service(projectPermissionTypePath)
+  service.hooks(hooks)
 }
